@@ -1,21 +1,23 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateTaskDto } from './dto/create-task.dto';
+import { CreateTaskDto, TaskStatusEnum } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class TaskService {
   private tasks: CreateTaskDto[] = [];
   create(createTaskDto: CreateTaskDto) {
+    createTaskDto.id = uuid();
+    createTaskDto.status = TaskStatusEnum.OPEN;
     this.tasks.push(createTaskDto);
-    console.log(this.tasks);
   }
 
   findAll() {
     return this.tasks;
   }
 
-  findOne(id: number) {
-    const task = this.tasks.find((task) => task.id === id);
+  findOne(id: string) {
+    const task = this.tasks.find((task) => task.id == id);
     if (task) {
       return task;
     } else {
@@ -23,7 +25,7 @@ export class TaskService {
     }
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
+  update(id: string, updateTaskDto: UpdateTaskDto) {
     const task = this.findOne(id);
     if (task) {
       return { ...task, ...updateTaskDto };
@@ -32,7 +34,7 @@ export class TaskService {
     }
   }
 
-  remove(id: number) {
+  remove(id: string) {
     const task = this.tasks.findIndex((task) => task.id === id);
 
     if (task) {
